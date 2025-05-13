@@ -20,7 +20,7 @@ const Home = async () => {
 
       <BookList
         title="Latest Books"
-        books={latestBooks.slice(1)}
+        books={latestBooks}
         containerClassName="mt-28"
       />
     </>
