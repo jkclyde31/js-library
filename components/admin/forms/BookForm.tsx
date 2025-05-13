@@ -282,8 +282,12 @@ const BookForm = ({ type, ...book }: Props) => {
           )}
         />
 
-        <Button type="submit" className="book-form_btn text-white">
-          Add Book to Library
+        <Button 
+          type="submit" 
+          className="book-form_btn text-white"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? "Submitting..." : "Add Book to Library"}
         </Button>
       </form>
     </Form>
