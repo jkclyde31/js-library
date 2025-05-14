@@ -4,11 +4,10 @@ import { db } from "@/database/drizzle";
 import { books, users } from "@/database/schema";
 import { auth } from "@/auth";
 import { desc } from "drizzle-orm";
-import LatestRelease from "../home-sections/LatestRelease";
-import Popular from "../home-sections/Popular";
-import CategoryBrowser from "@/components/CategoryBrowser";
+import { Button } from "@/components/ui/button";
 
-const Home = async () => {
+
+const LatestRelease = async () => {
   const session = await auth();
 
   const latestBooks = (await db
@@ -19,11 +18,17 @@ const Home = async () => {
 
   return (
     <>
-      <LatestRelease/>
-      <Popular/>
-      <CategoryBrowser/>
+      {/* <BookOverview {...latestBooks[0]} userId={session?.user?.id as string} /> */}
+
+      <BookList
+        title="Latest Books"
+        books={latestBooks}
+        containerClassName="mt-28"
+      />
     </>
+
+ 
   );
 };
 
-export default Home;
+export default LatestRelease;

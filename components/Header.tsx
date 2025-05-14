@@ -5,12 +5,17 @@ import { Button } from "@/components/ui/button";
 
 const Header = () => {
   return (
-    <header className="my-10 flex justify-between gap-5">
+    <header className="my-10 flex justify-between gap-5 ">
       <Link href="/">
         <Image src="/icons/logo.svg" alt="logo" width={40} height={40} />
       </Link>
 
-      <ul className="flex flex-row items-center gap-8">
+      <ul className="flex flex-row items-center  gap-8 text-white">
+        <li>Home</li>
+        <li>Books</li>
+        <li>Authors</li>
+        <li>Genres</li>
+        <li>My List</li>
         <li>
           <form
             action={async () => {
@@ -18,7 +23,7 @@ const Header = () => {
 
               await signOut();
             }}
-            className="mb-10"
+           className="text-black"
           >
             <Button>Logout</Button>
           </form>

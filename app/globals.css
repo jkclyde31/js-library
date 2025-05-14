@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+ul::marker {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 @layer base {
   :root {
     --radius: 0.5rem;
@@ -257,7 +263,11 @@
 
   /* Root */
   .root-container {
-    @apply flex min-h-screen flex-1 flex-col bg-pattern bg-cover bg-center bg-dark-100 px-5 xs:px-10 md:px-16;
+    @apply flex min-h-screen flex-1 flex-col  bg-dark-100 ;
+  }
+
+   .bg-hero {
+    @apply flex min-h-screen flex-1 flex-col bg-pattern bg-cover bg-center bg-dark-800 ;
   }
 
   /* Book Details */
@@ -281,6 +291,10 @@
   .library-title {
     @apply mt-2 text-3xl font-semibold text-white xs:text-5xl;
   }
+}
+
+.hero-gradient{
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.8) 100%);
 }
 
 @layer base {

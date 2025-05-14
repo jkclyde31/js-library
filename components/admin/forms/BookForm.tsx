@@ -40,7 +40,7 @@ const BookForm = ({ type, ...book }: Props) => {
       totalCopies: 1,
       coverUrl: "",
       coverColor: "",
-      videoUrl: "",
+      // videoUrl: "",
       summary: "",
     },
   });
@@ -54,7 +54,7 @@ const BookForm = ({ type, ...book }: Props) => {
         description: "Book created successfully",
       });
 
-      router.push(`/admin/books/${result.data.id}`);
+      router.push(`/books/${result.data.id}`);
     } else {
       toast({
         title: "Error",
@@ -237,7 +237,7 @@ const BookForm = ({ type, ...book }: Props) => {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name={"videoUrl"}
           render={({ field }) => (
@@ -259,7 +259,8 @@ const BookForm = ({ type, ...book }: Props) => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
+
         <FormField
           control={form.control}
           name={"summary"}
