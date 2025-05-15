@@ -7,6 +7,7 @@ import { desc } from "drizzle-orm";
 import LatestRelease from "../home-sections/LatestRelease";
 import Popular from "../home-sections/Popular";
 import CategoryBrowser from "@/components/CategoryBrowser";
+import Hero from "@/components/Hero";
 
 const Home = async () => {
   const session = await auth();
@@ -19,6 +20,7 @@ const Home = async () => {
 
   return (
     <>
+    
       <LatestRelease/>
       <Popular/>
       <CategoryBrowser/>

@@ -14,6 +14,8 @@ export default {
         "bebas-neue": ["var(--bebas-neue)"],
       },
       colors: {
+        main: "#8A2BE2 ",
+        hover: "#4B0082",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

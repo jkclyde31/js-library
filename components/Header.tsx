@@ -11,7 +11,9 @@ const Header = () => {
       </Link>
 
       <ul className="flex flex-row items-center  gap-8 text-white">
-        <li>Home</li>
+        <Link href={'/'}>
+          Home
+        </Link>
         <li>Books</li>
         <li>Authors</li>
         <li>Genres</li>
@@ -25,7 +27,7 @@ const Header = () => {
             }}
            className="text-black"
           >
-            <Button>Logout</Button>
+            <Button className="bg-main text-white hover:bg-hover">Logout</Button>
           </form>
         </li>
       </ul>

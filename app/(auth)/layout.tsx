@@ -14,7 +14,7 @@ const Layout = async ({ children }: { children: ReactNode }) => {
         <div className="auth-box">
           <div className="flex flex-row gap-3">
             <Image src="/icons/logo.svg" alt="logo" width={37} height={37} />
-            <h1 className="text-2xl font-semibold text-white">BookWise</h1>
+            <h1 className="text-2xl font-semibold text-white">Librify</h1>
           </div>
 
           <div>{children}</div>
@@ -23,7 +23,7 @@ const Layout = async ({ children }: { children: ReactNode }) => {
 
       <section className="auth-illustration">
         <Image
-          src="/images/auth-illustration.png"
+          src="/images/auth-illustration.jpg"
           alt="auth illustration"
           height={1000}
           width={1000}

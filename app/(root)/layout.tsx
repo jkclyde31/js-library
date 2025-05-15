@@ -6,25 +6,20 @@ import { after } from "next/server";
 import { db } from "@/database/drizzle";
 import { users } from "@/database/schema";
 import { eq } from "drizzle-orm";
-import Hero from "@/components/Hero";
+import HeroContainer from "../home-sections/HeroSection";
 
 const Layout = async ({ children }: { children: ReactNode }) => {
   const session = await auth();
-
   if (!session) redirect("/sign-in");
 
   after(async () => {
     if (!session?.user?.id) return;
-
     const user = await db
       .select()
       .from(users)
       .where(eq(users.id, session?.user?.id))
       .limit(1);
-
-    if (user[0].lastActivityDate === new Date().toISOString().slice(0, 10))
-      return;
-
+    if (user[0].lastActivityDate === new Date().toISOString().slice(0, 10)) return;
     await db
       .update(users)
       .set({ lastActivityDate: new Date().toISOString().slice(0, 10) })
@@ -33,22 +28,30 @@ const Layout = async ({ children }: { children: ReactNode }) => {
 
   return (
     <main className="root-container">
-      <div className="w-full bg-hero ">
-        <div className="min-h-screen h-screen bg-[linear-gradient(to_top,rgba(0,0,0,0.8)_0%,rgba(0,0,0,0.4)_60%,rgba(0,0,0,0.8)_100%)]">
-          <div className="mx-auto max-w-[1200px] w-full h-full">
-            <div className="absolute max-w-[1200px] w-full">
-              <Header session={session} />
+      {/* MAIN BACKGROUND CONTAINER (PATTERN + GRADIENT) */}
+      <div 
+        className="bg-cover bg-center bg-no-repeat bg-fixed w-full min-h-screen"
+        style={{ backgroundImage: "url('/images/pattern-2.webp')" }}
+      >
+        {/* HEADER SECTION (ABSOLUTE POSITIONED) */}
+        <div className="absolute top-0 left-0 w-full z-20">
+          <div className="mx-auto max-w-[1200px] w-full">
+            <Header session={session} />
+          </div>
+        </div>
+
+        {/* HERO SECTION WITH GRADIENT OVERLAY */}
+       <HeroContainer/>
+
+        {/* MAIN CONTENT SECTION */}
+        <div className="relative z-10 pt-[15px]">
+          <div className="mx-auto max-w-[1200px] w-full">
+            <div className="pb-20 mx-[15px]">
+              {children}
             </div>
-            <Hero/>
           </div>
         </div>
       </div>
-
-      {/* children */}
-      <div className="mx-auto max-w-[1200px] w-full ">
-        <div className="mt-20 pb-20 mx-[15px]">{children}</div>
-      </div>
-      
     </main>
   );
 };
