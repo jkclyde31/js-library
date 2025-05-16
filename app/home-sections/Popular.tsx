@@ -13,8 +13,8 @@ const Popular = async () => {
   const latestBooks = (await db
     .select()
     .from(books)
-    .limit(10)
-    .orderBy(desc(books.createdAt))) as Book[];
+    .limit(20)
+    .orderBy(desc(books.rating))) as Book[];
 
   return (
     <>

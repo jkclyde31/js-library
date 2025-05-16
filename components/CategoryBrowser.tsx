@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   imageUrl: string;
@@ -11,70 +11,56 @@ interface Category {
 }
 
 const CategoryBrowser = () => {
-  // Dummy data for categories
-const categories: Category[] = [
+  // Real categories from your book list with appropriate images
+  const categories: Category[] = [
     {
-      id: 1,
-      name: 'Fiction',
-      slug: 'fiction',
-      imageUrl: 'https://picsum.photos/300/200?random=11&blur=1',
-      bookCount: 1245,
+      id: '1',
+      name: 'Web Development',
+      slug: 'web-development',
+      imageUrl: 'https://ik.imagekit.io/pwd17k26p/books/covers/file_rzjr6TrKF.png', // Using React in Action cover
+      bookCount: 3, // CSS in Depth, HTML and CSS, React in Action
     },
     {
-      id: 2,
-      name: 'Science Fiction',
-      slug: 'science-fiction',
-      imageUrl: 'https://picsum.photos/300/200?random=12&blur=2',
-      bookCount: 876,
+      id: '2',
+      name: 'System Design',
+      slug: 'system-design',
+      imageUrl: 'https://ik.imagekit.io/pwd17k26p/books/covers/file_CmVaNeXrQ.png', // System Design Interview cover
+      bookCount: 1,
     },
     {
-      id: 3,
-      name: 'Mystery & Thriller',
-      slug: 'mystery-thriller',
-      imageUrl: 'https://picsum.photos/300/200?random=13&blur=2',
-      bookCount: 765,
+      id: '3',
+      name: 'Computer Science',
+      slug: 'computer-science',
+      imageUrl: 'https://ik.imagekit.io/pwd17k26p/books/covers/file_W6Bz0KiBC.png', // Operating System Concepts cover
+      bookCount: 4, // Computer Science Distilled, Fundamentals of DB, OS Concepts, Algorithms
     },
     {
-      id: 4,
-      name: 'Biography',
-      slug: 'biography',
-      imageUrl: 'https://picsum.photos/300/200?random=14&blur=2',
-      bookCount: 543,
+      id: '4',
+      name: 'Programming',
+      slug: 'programming',
+      imageUrl: 'https://ik.imagekit.io/pwd17k26p/books/covers/file_-xOn0_b32.png', // JavaScript: The Good Parts cover
+      bookCount: 5, // Art of Assembly, Seriously Good, JS Good Parts, Eloquent JS, Cracking Coding Interview
     },
     {
-      id: 5,
-      name: 'History',
-      slug: 'history',
-      imageUrl: 'https://picsum.photos/300/200?random=15&blur=2',
-      bookCount: 654,
+      id: '5',
+      name: 'Software',
+      slug: 'software',
+      imageUrl: 'https://ik.imagekit.io/pwd17k26p/books/covers/file_EE5klEyX0.png', // The Clean Coder cover
+      bookCount: 2, // The Clean Coder, The Lean Startup
     },
     {
-      id: 6,
-      name: 'Science & Technology',
-      slug: 'science-technology',
-      imageUrl: 'https://picsum.photos/300/200?random=16&blur=2',
-      bookCount: 432,
-    },
-    {
-      id: 7,
-      name: 'Fantasy',
-      slug: 'fantasy',
-      imageUrl: 'https://picsum.photos/300/200?random=17&blur=2',
-      bookCount: 567,
-    },
-    {
-      id: 8,
-      name: 'Romance',
-      slug: 'romance',
-      imageUrl: 'https://picsum.photos/300/200?random=18&blur=2',
-      bookCount: 789,
+      id: '6',
+      name: 'Self Help',
+      slug: 'self-help',
+      imageUrl: 'https://ik.imagekit.io/pwd17k26p/books/covers/file_HOCexO5Ms.png', // Atomic Habits cover
+      bookCount: 1,
     },
   ];
 
   return (
     <section className="mt-28">
-      <div className=" mx-auto text-white">
-      <h2 className="font-bebas-neue text-4xl text-light-100 mb-4">BROWSE BY CATEGORY</h2>
+      <div className="mx-auto text-white">
+        <h2 className="font-bebas-neue text-4xl text-light-100 mb-4">BROWSE BY GENRE</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
@@ -90,6 +76,7 @@ const categories: Category[] = [
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  unoptimized // Remove if you want Next.js to optimize these images
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                   <h3 className="text-white text-xl font-semibold text-center px-2">
@@ -97,13 +84,6 @@ const categories: Category[] = [
                   </h3>
                 </div>
               </div>
-
-              {/* <div className="p-4 bg-white">
-                <p className="text-gray-600 text-sm">
-                  {category.itemCount.toLocaleString()} items
-                </p>
-              </div> */}
-
             </Link>
           ))}
         </div>
