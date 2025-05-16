@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 
 
 const LatestRelease = async () => {
-  const session = await auth();
-
   const latestBooks = (await db
     .select()
     .from(books)

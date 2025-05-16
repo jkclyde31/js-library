@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 
 
 const Popular = async () => {
-  const session = await auth();
 
   const latestBooks = (await db
     .select()
