@@ -5,7 +5,6 @@ import { db } from "@/database/drizzle";
 import { books } from "@/database/schema";
 import { desc } from "drizzle-orm";
 import { auth } from "@/auth";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import BooksTable from "@/components/booksTable";
 
 const Page = async () => {
