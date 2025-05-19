@@ -134,7 +134,7 @@ const Page = async () => {
               <FiBook className="text-blue-500" /> Books by Genre
             </CardTitle>
           </CardHeader>
-          <CardContent className="w-full">
+          <CardContent className="w-[60%] mx-auto">
             <PieChart
               data={booksByGenre.map(g => ({
                 name: g.genre,
@@ -143,6 +143,7 @@ const Page = async () => {
             />
           </CardContent>
         </Card>
+
         <Card className="border shadow-sm ">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -275,9 +276,9 @@ const StatCard = ({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold">{value}</div>
-        <p className="text-sm text-gray-500 mt-1">
+        {/* <p className="text-sm text-gray-500 mt-1">
           <span className="text-green-500">{change}</span>
-        </p>
+        </p> */}
         {description && (
           <p className="text-xs text-gray-400 mt-2">{description}</p>
         )}
