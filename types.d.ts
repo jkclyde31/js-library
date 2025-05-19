@@ -15,6 +15,7 @@ interface Book {
 }
 
 interface AuthCredentials {
+  id: string;
   fullName: string;
   email: string;
   password: string;
@@ -38,9 +39,9 @@ interface BookParams {
 interface BorrowBookParams {
   bookId: string;
   userId: string;
-  borrowDate: Date | null;
-  dueDate: Date | null;
-  returnDate: Date | null;
+  borrowDate: Date | string | null;
+  dueDate: Date | string | null;
+  returnDate: Date | string | null;
   status: string;
 }
 
