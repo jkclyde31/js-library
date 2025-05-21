@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface BorrowBookParams {
+  id:string;
   bookId: string;
   userId: string;
   borrowDate: Date | string | null;
@@ -160,6 +161,12 @@ const getSortIcon = (key: keyof BorrowBookParams) => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-primary-admin text-white">
                 <tr>
+                   <th
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
+                    onClick={() => requestSort("id")}
+                  >
+                    Request ID {getSortIcon("id")}
+                  </th>
                   <th
                     className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
                     onClick={() => requestSort("userId")}
@@ -204,6 +211,9 @@ const getSortIcon = (key: keyof BorrowBookParams) => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentItems.map((record) => (
                   <tr key={`${record.bookId}-${record.userId}`} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.id}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getUserName(record.userId)}
                     </td>

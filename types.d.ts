@@ -37,6 +37,7 @@ interface BookParams {
 }
 
 interface BorrowBookParams {
+  id: string;
   bookId: string;
   userId: string;
   borrowDate: Date | string | null;
