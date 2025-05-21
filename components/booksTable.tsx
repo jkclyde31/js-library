@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useMemo } from "react";
-import { FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiSearch } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiSearch, FiX } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { editBook } from "@/lib/actions/editBook";
+import { toast } from "@/hooks/use-toast";
 
 interface Book {
   id: string;
@@ -16,9 +18,7 @@ interface Book {
   description: string;
   coverColor: string;
   coverUrl: string;
-  videoUrl: string;
   summary: string;
-  createdAt: Date | null;
 }
 
 interface BooksTableProps {
@@ -29,46 +29,43 @@ const BooksTable = ({ books: initialBooks }: BooksTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Book; direction: 'ascending' | 'descending' } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [books, setBooks] = useState<Book[]>(initialBooks);
   const itemsPerPage = 7;
 
   // Filter and sort books
- // Filter and sort books
-const filteredBooks = useMemo(() => {
-  let filtered = initialBooks;
-  
-  // Apply search filter
-  if (searchTerm) {
-    filtered = filtered.filter(book => 
-      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.genre.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-  
-  // Apply sorting
-  if (sortConfig !== null) {
-    filtered = [...filtered].sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-      
-      // Handle null/undefined values
-      if (aValue == null && bValue == null) return 0;
-      if (aValue == null) return sortConfig.direction === 'ascending' ? 1 : -1;
-      if (bValue == null) return sortConfig.direction === 'ascending' ? -1 : 1;
-      
-      // Compare non-null values
-      if (aValue < bValue) {
-        return sortConfig.direction === 'ascending' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
-      }
-      return 0;
-    });
-  }
-  
-  return filtered;
-}, [initialBooks, searchTerm, sortConfig]);
+  const filteredBooks = useMemo(() => {
+    let filtered = books;
+    
+    if (searchTerm) {
+      filtered = filtered.filter(book => 
+        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.genre.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (sortConfig !== null) {
+      filtered = [...filtered].sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        
+        if (aValue == null && bValue == null) return 0;
+        if (aValue == null) return sortConfig.direction === 'ascending' ? 1 : -1;
+        if (bValue == null) return sortConfig.direction === 'ascending' ? -1 : 1;
+        
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    
+    return filtered;
+  }, [books, searchTerm, sortConfig]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
@@ -83,7 +80,7 @@ const filteredBooks = useMemo(() => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
-    setCurrentPage(1); // Reset to first page when sorting changes
+    setCurrentPage(1);
   };
 
   const getSortIcon = (key: keyof Book) => {
@@ -95,8 +92,202 @@ const filteredBooks = useMemo(() => {
       <FiChevronDown className="inline ml-1" />;
   };
 
+  const handleEditClick = (book: Book) => {
+    setEditingBook({...book});
+  };
+
+  // Handle form submission
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBook) return;
+    
+    try {
+      const result = await editBook(editingBook);
+      
+      if (result.success) {
+        setBooks(books.map(book => 
+          book.id === editingBook.id ? editingBook : book
+        ));
+
+        toast({
+          title: "Success",
+           description:"Successfully Updated item" ,
+          });
+
+        setEditingBook(null);
+      } else {
+        console.error(result.error);
+          toast({
+           title: "Error",
+           description:"Error Updateding file." ,
+          });
+      }
+    } catch (error) {
+      console.error("Failed to update book:", error);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (!editingBook) return;
+    
+    const { name, value } = e.target;
+    setEditingBook({
+      ...editingBook,
+      [name]: name === 'rating' || name === 'totalCopies' || name === 'availableCopies' 
+        ? Number(value) 
+        : value
+    });
+  };
+
   return (
     <div className="w-full">
+      {/* Edit Book Modal */}
+      {editingBook && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Edit Book</h2>
+                <button 
+                  onClick={() => setEditingBook(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleEditSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={editingBook.title}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+                    <input
+                      type="text"
+                      name="author"
+                      value={editingBook.author}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Genre</label>
+                    <input
+                      type="text"
+                      name="genre"
+                      value={editingBook.genre}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                    <input
+                      type="number"
+                      name="rating"
+                      min="0"
+                      max="5"
+                      step="0.1"
+                      value={editingBook.rating}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Total Copies</label>
+                    <input
+                      type="number"
+                      name="totalCopies"
+                      min="0"
+                      value={editingBook.totalCopies}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Available Copies</label>
+                    <input
+                      type="number"
+                      name="availableCopies"
+                      min="0"
+                      max={editingBook.totalCopies}
+                      value={editingBook.availableCopies}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    name="description"
+                    value={editingBook.description}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cover URL</label>
+                  <input
+                    type="text"
+                    name="coverUrl"
+                    value={editingBook.coverUrl}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                  />
+                </div>
+                
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Summary</label>
+                  <textarea
+                    name="summary"
+                    value={editingBook.summary}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                  />
+                </div>
+                
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingBook(null)}
+                    className="px-4 py-2"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-primary-admin text-white px-4 py-2"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Search and Filter */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="relative w-full sm:w-64">
@@ -112,7 +303,6 @@ const filteredBooks = useMemo(() => {
             }}
           />
         </div>
-      
       </div>
 
       {/* Table */}
@@ -180,7 +370,10 @@ const filteredBooks = useMemo(() => {
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{book.totalCopies}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex space-x-3">
-                        <button className="text-blue-600 hover:text-blue-900 transition-colors">
+                        <button 
+                          onClick={() => handleEditClick(book)}
+                          className="text-blue-600 hover:text-blue-900 transition-colors"
+                        >
                           <FiEdit2 className="w-5 h-5" />
                         </button>
                         <button className="text-red-600 hover:text-red-900 transition-colors">

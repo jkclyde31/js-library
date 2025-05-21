@@ -1,11 +1,14 @@
 "use client"
 
 import { useState, useMemo } from "react";
-import { FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiSearch } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiSearch, FiX } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { editUser } from "@/lib/actions/editUser";
+import { toast } from "@/hooks/use-toast";
 
 interface AuthCredentials {
+  id:string;
   fullName: string;
   email: string;
   password: string;
@@ -23,14 +26,60 @@ const UsersTable = ({ users: initialUsers }: UsersTableProps) => {
     key: keyof AuthCredentials; 
     direction: 'ascending' | 'descending' 
   } | null>(null);
+  const [editingUser, setEditingUser] = useState<AuthCredentials | null>(null);
+  const [users, setUsers] = useState<AuthCredentials[]>(initialUsers);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!editingUser) return;
+    
+    const { name, value } = e.target;
+    setEditingUser({
+      ...editingUser,
+      [name]: name === 'universityId' ? Number(value) : value
+    });
+  };
+
+  // HANDLE SUBMIT ===========================================================
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    
+    try {
+const result = await editUser(editingUser);
+      
+      if (result.success) {
+        setUsers(users.map(user => 
+          user.email === editingUser.email ? editingUser : user
+        ));
+        toast({
+          title: "Success",
+          description: "User updated successfully",
+        });
+        setEditingUser(null);
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update user",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter and sort users
   const filteredUsers = useMemo(() => {
-    let filtered = initialUsers;
+    let filtered = users;
     
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(user => 
         user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,18 +88,15 @@ const UsersTable = ({ users: initialUsers }: UsersTableProps) => {
       );
     }
     
-    // Apply sorting
     if (sortConfig !== null) {
       filtered = [...filtered].sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
         
-        // Handle null/undefined values
         if (aValue == null && bValue == null) return 0;
         if (aValue == null) return sortConfig.direction === 'ascending' ? 1 : -1;
         if (bValue == null) return sortConfig.direction === 'ascending' ? -1 : 1;
         
-        // Compare non-null values
         if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
@@ -62,7 +108,7 @@ const UsersTable = ({ users: initialUsers }: UsersTableProps) => {
     }
     
     return filtered;
-  }, [initialUsers, searchTerm, sortConfig]);
+  }, [users, searchTerm, sortConfig]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -91,6 +137,90 @@ const UsersTable = ({ users: initialUsers }: UsersTableProps) => {
 
   return (
     <div className="w-full">
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Edit User</h2>
+                <button 
+                  onClick={() => setEditingUser(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleEditSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={editingUser.fullName}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={editingUser.email}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">University ID</label>
+                    <input
+                      type="number"
+                      name="universityId"
+                      value={editingUser.universityId}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">University Card URL</label>
+                    <input
+                      type="text"
+                      name="universityCard"
+                      value={editingUser.universityCard}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-admin"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingUser(null)}
+                    className="px-4 py-2"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-primary-admin text-white px-4 py-2"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Search and Filter */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="relative w-full sm:w-64">
@@ -165,7 +295,10 @@ const UsersTable = ({ users: initialUsers }: UsersTableProps) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex space-x-3">
-                        <button className="text-blue-600 hover:text-blue-900 transition-colors">
+                        <button 
+                          onClick={() => setEditingUser(user)}
+                          className="text-blue-600 hover:text-blue-900 transition-colors"
+                        >
                           <FiEdit2 className="w-5 h-5" />
                         </button>
                         <button className="text-red-600 hover:text-red-900 transition-colors">
