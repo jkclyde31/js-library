@@ -1,9 +1,11 @@
 "use client";
 
+import { useTransition } from "react";
 import { useState, useMemo } from "react";
 import { FiEdit2, FiTrash2, FiChevronUp, FiChevronDown, FiSearch } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { editBorrowStatus } from "@/lib/actions/update-borrow-status";
 
 interface BorrowBookParams {
   id:string;
@@ -56,6 +58,8 @@ const BorrowRecordsTable = ({ records, users, books }: BorrowRecordsTableProps) 
     key: keyof BorrowBookParams;
     direction: "ascending" | "descending";
   } | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -68,6 +72,14 @@ const BorrowRecordsTable = ({ records, users, books }: BorrowRecordsTableProps) 
     const book = books.find((u) => u.id === bookId);
     return book ? book.title : "Unknown Book";
   };
+
+ const handleStatusChange = (id: string, newStatus: "PENDING" | "BORROWED" | "RETURNED") => {
+  setUpdatingId(id);
+  startTransition(async () => {
+    await editBorrowStatus({ id, status: newStatus });
+    setUpdatingId(null);
+  });
+};
 
   const filteredRecords = useMemo(() => {
     let filtered = records;
@@ -203,9 +215,9 @@ const getSortIcon = (key: keyof BorrowBookParams) => {
                   >
                     Status {getSortIcon("status")}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
-                    Actions
-                  </th>
+                 <th>
+
+                 </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -233,17 +245,25 @@ const getSortIcon = (key: keyof BorrowBookParams) => {
                         ? new Date(record.returnDate).toLocaleDateString()
                         : "N/A"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{record.status}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex space-x-3">
-                        <button className="text-blue-600 hover:text-blue-900">
-                          <FiEdit2 className="w-5 h-5" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
-                          <FiTrash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                 <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={record.status}
+                        onChange={(e) => handleStatusChange(record.id, e.target.value as any)}
+                        className="border border-gray-300 rounded px-2 py-1"
+                        disabled={isPending && updatingId === record.id}
+                      >
+                        <option value="PENDING">PENDING</option>
+                        <option value="BORROWED">BORROWED</option>
+                        <option value="RETURNED">RETURNED</option>
+                      </select>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm italic">
+                      {isPending && updatingId === record.id ? "Updating..." : ""}
+                    </td>
+
+
+
+                
                   </tr>
                 ))}
               </tbody>

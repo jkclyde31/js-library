@@ -86,11 +86,6 @@ const Page = async () => {
               <FiBook size={16} /> Add Book
             </Link>
           </Button>
-          <Button asChild className="gap-2 bg-primary-admin hover:bg-primary-admin/90 text-white">
-            <Link href="/admin/users/new">
-              <FiUsers size={16} /> Add User
-            </Link>
-          </Button>
         </div>
       </div>
 
